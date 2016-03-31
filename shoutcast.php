@@ -7,139 +7,139 @@ http://wiki.winamp.com/wiki/SHOUTcast_DNAS_Server_2_XML_Reponses#Full_Server_Sum
 class Shoutcast
 {
 
-	/**
-	 * @var string Server Host
-	 **/
-	private $server_host;
+    /**
+     * @var string Server Host
+     **/
+    private $server_host;
 
 
 
-	/**
-	 * @var string Server Port
-	 **/
-	private $server_port;
+    /**
+     * @var string Server Port
+     **/
+    private $server_port;
 
 
 
-	/**
-	 * @var integer Stream ID
-	 **/
-	private $stream;
+    /**
+     * @var integer Stream ID
+     **/
+    private $stream;
 
 
 
-	/**
-	 * @var integer Connection Time Out
-	 **/
-	private $conn_timeout;
+    /**
+     * @var integer Connection Time Out
+     **/
+    private $conn_timeout;
 
 
 
-	/**
-	 * @var string Administrator Password
-	 **/
-	private $adm_password;
+    /**
+     * @var string Administrator Password
+     **/
+    private $adm_password;
 
 
 
-	/**
-	 * @var resource Connection Handler
-	 **/
-	private $fp;
+    /**
+     * @var resource Connection Handler
+     **/
+    private $fp;
 
 
 
-	/**
-	 * @var array User Vars
-	 **/
-	private $vars;
+    /**
+     * @var array User Vars
+     **/
+    private $vars;
 
 
 
-	/**
-	 * @var bool Work in admin mode
-	 **/
-	private $admin_mode = false;
+    /**
+     * @var bool Work in admin mode
+     **/
+    private $admin_mode = false;
 
 
 
-	/**
-	 * Constructor
-	 *
-	 * @access public
-	 * @return void
-	 *
-	 **/
-	public function __construct ($server_host, $server_port, $adm_password = null, $stream = 1, $conn_timeout = 10)
-	{
+    /**
+     * Constructor
+     *
+     * @access public
+     * @return void
+     *
+     **/
+    public function __construct($server_host, $server_port, $adm_password = null, $stream = 1, $conn_timeout = 10)
+    {
 
-		/* Check Data */
-		if ( empty ($server_host) || empty ($server_port) )
-			die ('Error: Server Host and Server Port are needed');
+        /* Check Data */
+        if (empty($server_host) || empty($server_port))
+            die('Error: Server Host and Server Port are needed');
 
-		/* If Admin mode */
-		if ( is_string ($adm_password) )
-		{
-			$this->adm_password = $adm_password;
-			$this->admin_mode = true;
-		}
+        /* If Admin mode */
+        if (is_string($adm_password))
+        {
+            $this->adm_password = $adm_password;
+            $this->admin_mode   = true;
+        }
 
-		/* Set data */
-		$this->server_host = $server_host;
-		$this->server_port = $server_port;
-		$this->stream = $stream;
-		$this->conn_timeout = $conn_timeout;
+        /* Set data */
+        $this->server_host  = $server_host;
+        $this->server_port  = $server_port;
+        $this->stream       = $stream;
+        $this->conn_timeout = $conn_timeout;
 
-		/* Connect to server */
-		$this->trace_connection();
+        /* Connect to server */
+        $this->trace_connection();
 
-		if ( $this->server_online() )
-			$this->parse_data();
-	}
-
-
-
-	/**
-	 * Destruct
-	 *
-	 * @access public
-	 * @return void
-	 *
-	 * Close handler
-	 *
-	 **/
-	public function __destruct()
-	{
-		if ( is_resource ($this->fp) )
-			fclose ($this->fp);
-	}
+        if ($this->server_online())
+            $this->parse_data();
+    }
 
 
 
-	/**
-	 * Trace Connection
-	 *
-	 * @access private
-	 * @return void
-	 *
-	 **/
-	private function trace_connection()
-	{
-		$this->fp = @fsockopen ($this->server_host, $this->server_port, $errno, $errstr, $this->conn_timeout);
-	}
+    /**
+     * Destruct
+     *
+     * @access public
+     * @return void
+     *
+     * Close handler
+     *
+     **/
+    public function __destruct()
+    {
+        if (is_resource($this->fp))
+            fclose($this->fp);
+    }
 
 
 
-	/**
-	 * Select the parser to use
-	 *
-	 * @access private
-	 * @return void
-	 *
-	 **/
-	private function parse_data()
-	{
-        if ( $this->admin_mode() )
+    /**
+     * Trace Connection
+     *
+     * @access private
+     * @return void
+     *
+     **/
+    private function trace_connection()
+    {
+        $this->fp = @fsockopen($this->server_host, $this->server_port, $errno, $errstr, $this->conn_timeout);
+    }
+
+
+
+    /**
+     * Select the parser to use
+     *
+     * @access private
+     * @return void
+     *
+     **/
+    private function parse_data()
+    {
+        if ($this->admin_mode())
         {
             fputs($this->fp, "GET /admin.cgi?mode=viewxml&pass=" . $this->adm_password . "&sid=" . $this->stream . " HTTP/1.0\r\n");
         }
@@ -148,154 +148,164 @@ class Shoutcast
             fputs($this->fp, "GET /stats HTTP/1.0\r\n");
         }
 
-		fputs($this->fp, "User-Agent: Mozilla\r\n");
-		// fputs($this->fp, "Authorization: Basic " . base64_encode ($this->adm_username . ":" . $this->adm_password) . "\r\n");
-		fputs($this->fp, "\r\n");
+        fputs($this->fp, "User-Agent: Mozilla\r\n");
+        // fputs($this->fp, "Authorization: Basic " . base64_encode ($this->adm_username . ":" . $this->adm_password) . "\r\n");
+        fputs($this->fp, "\r\n");
 
-		$plain_txt = '';
+        $plain_txt = '';
 
-		//Buffering data
-		while ( ! feof ($this->fp) )
-			$plain_txt .= @fgets( $this->fp, 1024 );
+        //Buffering data
+        while (!feof($this->fp))
+            $plain_txt .= @fgets($this->fp, 1024);
 
-		preg_match ("/<SHOUTCASTSERVER>(.*)<\/SHOUTCASTSERVER>/", $plain_txt, $matches);
+        preg_match("/<SHOUTCASTSERVER>(.*)<\/SHOUTCASTSERVER>/", $plain_txt, $matches);
 
-		$xml = @simplexml_load_string ($matches[0]);
+        $xml = @simplexml_load_string($matches[0]);
 
-		if ( ! is_object ($xml) )
-		{
-			$this->vars['STATION_STATUS'] = 0;
-			return;
-		}
-		//print_r($xml);
-
-		$data = self::simplexml_to_array($xml); //To array;
-
-		$this->vars['CURRENT_LISTENERS'] 	= $data['CURRENTLISTENERS'];
-		$this->vars['CURRENT_SONG'] 		= $data['SONGTITLE'];
-		$this->vars['NEXT_SONG'] 			= $data['NEXTTITLE'];
-
-		$this->vars['LISTENERS_PEAK'] 		= $data['PEAKLISTENERS'];
-		$this->vars['LISTENERS_LIMIT'] 		= $data['MAXLISTENERS'];
-		$this->vars['UNIQUE_LISTENERS'] 	= $data['UNIQUELISTENERS'];
-
-		$this->vars['STATION_STATUS'] 		= $data['STREAMSTATUS'];
-		$this->vars['STATION_GENRE'] 		= $data['SERVERGENRE'];
-		$this->vars['STATION_URL'] 			= $data['SERVERURL'];
-		$this->vars['STATION_TITLE'] 		= $data['SERVERTITLE'];
-
-		$this->vars['DJ'] 					= $data['DJ'];
-
-		$this->vars['CONTENT_TYPE'] 		= $data['CONTENT'];
-
-		$this->vars['BITRATE'] 			 	= $data['BITRATE'];
-		$this->vars['SERVER_VERSION'] 		= $data['VERSION'];
-
-        if ( $this->admin_mode() )
+        if (!is_object($xml))
         {
-    		//Save song history
-    		if(isset($data['SONGHISTORY']['SONG']['TITLE'])) {
-    			$tmp_data = $data['SONGHISTORY'];
-    		} else {
-    			$tmp_data = $data['SONGHISTORY']['SONG'];
-    		}
+            $this->vars['STATION_STATUS'] = 0;
+            return;
+        }
+        //print_r($xml);
 
-    		$song_history = array();
-    		foreach ( (array)$tmp_data as $song )
-    		{
-    			$song_history[] = array (
-    				"TIMESTAMP" => intval ($song['PLAYEDAT']),
-    				"TITLE" => $song['TITLE']
-    			);
-    		}
+        $data = self::simplexml_to_array($xml); //To array;
 
-    		//Save listeners list
-    		if ( isset($data['LISTENERS']['LISTENER']['HOSTNAME']) )
+        $this->vars['CURRENT_LISTENERS'] = $data['CURRENTLISTENERS'];
+        $this->vars['CURRENT_SONG']      = $data['SONGTITLE'];
+        $this->vars['NEXT_SONG']         = $data['NEXTTITLE'];
+
+        $this->vars['LISTENERS_PEAK']   = $data['PEAKLISTENERS'];
+        $this->vars['LISTENERS_LIMIT']  = $data['MAXLISTENERS'];
+        $this->vars['UNIQUE_LISTENERS'] = $data['UNIQUELISTENERS'];
+
+        $this->vars['STATION_STATUS'] = $data['STREAMSTATUS'];
+        $this->vars['STATION_GENRE']  = $data['SERVERGENRE'];
+        $this->vars['STATION_URL']    = $data['SERVERURL'];
+        $this->vars['STATION_TITLE']  = $data['SERVERTITLE'];
+
+        $this->vars['DJ'] = $data['DJ'];
+
+        $this->vars['CONTENT_TYPE'] = $data['CONTENT'];
+
+        $this->vars['BITRATE']        = $data['BITRATE'];
+        $this->vars['SERVER_VERSION'] = $data['VERSION'];
+
+        if ($this->admin_mode())
+        {
+            //Save song history
+            if (isset($data['SONGHISTORY']['SONG']['TITLE']))
             {
-    			$tmp_data = $data['LISTENERS'];
-    		}
+                $tmp_data = $data['SONGHISTORY'];
+            }
             else
             {
-    			$tmp_data = $data['LISTENERS']['LISTENER'];
-    		}
+                $tmp_data = $data['SONGHISTORY']['SONG'];
+            }
 
-    		$listeners = array();
-    		foreach ( (array)$tmp_data as $listener )
-    		{
-    			$listeners[] = array (
-    				"HOST" => $listener['HOSTNAME'],
-    				"PLAYER" => $listener['USERAGENT'],
-    				"CONNECT_TIME" => $listener['CONNECTTIME'],
-    				"UID" => $listener['UID']
-    			);
-    		}
+            $song_history = array();
+            foreach ((array) $tmp_data as $song)
+            {
+                $song_history[] = array(
+                    "TIMESTAMP" => intval($song['PLAYEDAT']),
+                    "TITLE" => $song['TITLE']
+                );
+            }
 
-    		//here continue vars
-    		$this->vars['SONG_HISTORY'] 		= $song_history;
-    		$this->vars['LISTENERS'] 			= $listeners;
+            //Save listeners list
+            if (isset($data['LISTENERS']['LISTENER']['HOSTNAME']))
+            {
+                $tmp_data = $data['LISTENERS'];
+            }
+            else
+            {
+                $tmp_data = $data['LISTENERS']['LISTENER'];
+            }
+
+            $listeners = array();
+            foreach ((array) $tmp_data as $listener)
+            {
+                $listeners[] = array(
+                    "HOST" => $listener['HOSTNAME'],
+                    "PLAYER" => $listener['USERAGENT'],
+                    "CONNECT_TIME" => $listener['CONNECTTIME'],
+                    "UID" => $listener['UID']
+                );
+            }
+
+            //here continue vars
+            $this->vars['SONG_HISTORY'] = $song_history;
+            $this->vars['LISTENERS']    = $listeners;
         }
-	}
+    }
 
 
 
-	/**
-	 * Check if server is offline or not!
-	 *
-	 * @access public
-	 * @return bool If server online
-	 *
-	 **/
-	public function server_online()
-	{
-		return is_resource ($this->fp);
-	}
+    /**
+     * Check if server is offline or not!
+     *
+     * @access public
+     * @return bool If server online
+     *
+     **/
+    public function server_online()
+    {
+        return is_resource($this->fp);
+    }
 
 
 
-	/**
-	 * Check is admin mode is actived
-	 *
-	 * @access public
-	 * @return bool If active mode actived
-	 *
-	 **/
-	public function admin_mode()
-	{
-		return $this->admin_mode;
-	}
+    /**
+     * Check is admin mode is actived
+     *
+     * @access public
+     * @return bool If active mode actived
+     *
+     **/
+    public function admin_mode()
+    {
+        return $this->admin_mode;
+    }
 
 
 
-	/**
-	 * Get a var value
-	 *
-	 * @access public
-	 * @return mixed
-	 *
-	 **/
-	public function get ($var_name)
-	{
-		if ( isset ($this->vars[$var_name]) )
-			return $this->vars[$var_name];
-		else
-			return '';
-	}
+    /**
+     * Get a var value
+     *
+     * @access public
+     * @return mixed
+     *
+     **/
+    public function get($var_name)
+    {
+        if (isset($this->vars[$var_name]))
+            return $this->vars[$var_name];
+        else
+            return '';
+    }
 
-	public static function simplexml_to_array($object) {
-		if(!is_object($object) && !is_array($object)) {
-			return $object;
-		}
+    public static function simplexml_to_array($object)
+    {
+        if (!is_object($object) && !is_array($object))
+        {
+            return $object;
+        }
 
-		if(is_object($object)) {
-			$object = get_object_vars($object);
-		}
+        if (is_object($object))
+        {
+            $object = get_object_vars($object);
+        }
 
-		if(count($object) === 0) {
-			return '';
-		}
+        if (count($object) === 0)
+        {
+            return '';
+        }
 
-		return array_map(array(__CLASS__, 'simplexml_to_array'), $object);
-	}
+        return array_map(array(
+            __CLASS__,
+            'simplexml_to_array'
+        ), $object);
+    }
 
 }
 ?>
