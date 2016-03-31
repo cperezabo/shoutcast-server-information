@@ -1,7 +1,7 @@
 # Simple Shoutcast Server Information
 About
 -----
-It's just another library to get information from a [Shoutcast Server](https://www.shoutcast.com/)
+It's just another library to get information from a [Shoutcast Server](https://www.shoutcast.com/)  
 It supports Shoutcast Server 2+.
 
 Example
@@ -45,15 +45,15 @@ else
 
 Public Methods
 -----
-public **Shoutcast::server_online** (void)
+public **Shoutcast::server_online** (void)  
 Returns TRUE or FALSE depending on the server status.
-If you can get the transmission status, use the STATION_STATUS variable.
+If you want get the transmission status, use the STATION_STATUS variable.  
 
-public **Shoutcast::admin_mode** (void)
-Returns TRUE or FALSE depending if it is in admin mode or not.
+public **Shoutcast::admin_mode** (void)  
+Returns TRUE or FALSE depending if it is in admin mode or not. You have to provide an admin password to the class constructor.  
 
-public **Shoutcast::get** (string $var)
-Returns the value of the given var, if it is not available, it just returns an empty string
+public **Shoutcast::get** (string $var)  
+Returns the value for the given var, if it is not available, it just returns an empty string  
 
 
 Data Variables
@@ -84,5 +84,5 @@ Only with admin password:
 
 Ideas?
 ------------------------------------
-As you already noticed it, it doesn't cover all the XML API, just the most needed information to keep it simple to use.
-If you need more, just let me know! or fork it instead.
+As you already noticed, it doesn't cover all the XML API, only the most useful information, just to keep it simple.
+If you need more, let me know! or fork it instead.
